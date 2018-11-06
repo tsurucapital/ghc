@@ -39,7 +39,8 @@ module TcHsSyn (
         zonkTyVarOcc,
         zonkCoToCo,
         zonkEvBinds, zonkTcEvBinds,
-        zonkTcMethInfoToMethInfoX
+        zonkTcMethInfoToMethInfoX,
+        lookupTyVarOcc
   ) where
 
 #include "HsVersions.h"
@@ -1767,6 +1768,10 @@ zonkTyVarOcc env@(ZonkEnv { ze_flexi = flexi
       = do { let mtv_env' = extendVarEnv mtv_env tv ty
            ; writeTcRef mtv_env_ref mtv_env'
            ; return ty }
+
+lookupTyVarOcc :: ZonkEnv -> TcTyVar -> Maybe TyVar
+lookupTyVarOcc (ZonkEnv { ze_tv_env = tv_env }) tv
+  = lookupVarEnv tv_env tv
 
 commitFlexi :: ZonkFlexi -> TcTyVar -> Kind -> TcM Type
 -- Only monadic so we can do tc-tracing
