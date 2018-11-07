@@ -1744,7 +1744,6 @@ kcImplicitTKBndrs     = kcImplicitTKBndrsX newFlexiKindedTyVarTyVar
 -- | Bring implicitly quantified type/kind variables into scope during
 -- kind checking. The returned TcTyVars are in 1-1 correspondence
 --- with the names passed in.
--- Note [Use TyVarTvs in kind-checking pass] in TcTyClsDecls.
 kcImplicitTKBndrsX :: (Name -> TcM TcTyVar) -- new_tv function
                    -> [Name]              -- of the vars
                    -> TcM a
@@ -2065,7 +2064,6 @@ kcLookupTcTyCon nm
 -- Never emits constraints, though the thing_inside might.
 kcTyClTyVars :: Name -> TcM a -> TcM a
 kcTyClTyVars tycon_name thing_inside
-  -- See Note [Use TyVarTvs in kind-checking pass] in TcTyClsDecls
   = do { tycon <- kcLookupTcTyCon tycon_name
        ; tcExtendNameTyVarEnv (tcTyConScopedTyVars tycon) $ thing_inside }
 
