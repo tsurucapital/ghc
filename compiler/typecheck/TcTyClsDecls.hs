@@ -1760,6 +1760,7 @@ tcTyFamInstEqn :: TcTyCon -> Maybe ClsInstInfo -> LTyFamInstEqn GhcRn
 -- (typechecked here) have TyFamInstEqns
 
 
+{-
 tcTyFamInstEqn fam_tc mb_clsinfo
     (L loc (HsIB { hsib_ext = imp_vars
                  , hsib_body = FamEqn { feqn_tycon  = L _ eqn_tc_name
@@ -1780,8 +1781,8 @@ tcTyFamInstEqn fam_tc mb_clsinfo
        ; return (mkCoAxBranch tvs' [] pats' rhs_ty'
                               (map (const Nominal) tvs')
                               loc) }
+-}
 
-{-
 tcTyFamInstEqn fam_tc mb_clsinfo
     eqn@(L loc (HsIB { hsib_ext = imp_vars
                  , hsib_body = FamEqn { feqn_tycon  = L _ eqn_tc_name
@@ -1790,12 +1791,12 @@ tcTyFamInstEqn fam_tc mb_clsinfo
                                       , feqn_rhs    = hs_ty }}))
   = ASSERT( getName fam_tc == eqn_tc_name )
     setSrcSpan loc $
-    do { traceTc "tcTyFamInstEqn {" (ppr eqn)
-       ; (imp_tvs, (exp_tvs, ((pats, rhs_ty))))
+    do { traceTc "tcTyFamInstEqn {" (ppr eqn_tc_name <+> ppr hs_pats)
+       ; (_imp_tvs, (_exp_tvs, ((pats, rhs_ty))))
            <- pushTcLevelM_                     $
               solveEqualities                   $
               bindImplicitTKBndrs_Q_Skol imp_vars $
-              bindExplicitTKBndrs_Q_Skol (mb_expl_bndrs `orElse` []) $
+              bindExplicitTKBndrs_Q_Skol AnyKind (mb_expl_bndrs `orElse` []) $
               do { let fam_name  = tyConName fam_tc
                        lhs_fun = L loc (HsTyVar noExt NotPromoted
                                                 (L loc fam_name))
@@ -1808,21 +1809,16 @@ tcTyFamInstEqn fam_tc mb_clsinfo
                   ; rhs_ty <- tcCheckLHsType hs_ty res_kind
                   ; return (pats, rhs_ty) }
 
-       ; imp_tvs <- zonkAndScopedSort imp_tvs
-       ; let spec_req_tkvs = imp_tvs ++ exp_tvs
-       ; dvs <- candidateQTyVarsOfKinds $
-                typeKind rhs_ty : map tyVarKind (spec_req_tkvs)
-       ; let final_dvs = dvs `delCandidates` spec_req_tkvs
-       ; inferred_kvs <- quantifyTyVars emptyVarSet final_dvs
+       ; dvs <- candidateQTyVarsOfTypes (rhs_ty : pats)
+       ; qtkvs <- quantifyTyVars emptyVarSet dvs
 
-       ; (ze, tvs') <- zonkTyBndrs (inferred_kvs ++ spec_req_tkvs)
+       ; (ze, tvs') <- zonkTyBndrs qtkvs
        ; pats'      <- zonkTcTypesToTypesX ze pats
        ; rhs_ty'    <- zonkTcTypeToTypeX ze rhs_ty
        ; traceTc "tcTyFamInstEqn }" (ppr fam_tc <+> pprTyVars tvs')
        ; return (mkCoAxBranch tvs' [] pats' rhs_ty'
                               (map (const Nominal) tvs')
                               loc) }
--}
 
 
 tcTyFamInstEqn _ _ (L _ (XHsImplicitBndrs _)) = panic "tcTyFamInstEqn"

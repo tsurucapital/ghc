@@ -21,6 +21,7 @@ module TcHsType (
         UserTypeCtxt(..),
         bindImplicitTKBndrs_Skol, bindImplicitTKBndrs_Q_Skol,
         bindExplicitTKBndrs_Skol, bindExplicitTKBndrs_Q_Skol,
+        ContextKind(..),
 
                 -- Type checking type and class decls
         kcLookupTcTyCon, kcTyClTyVars, tcTyClTyVars,
