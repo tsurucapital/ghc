@@ -1651,7 +1651,7 @@ See Note [Associated type tyvar names] in Class and
 
 We must do the same for family instance decls, where the in-scope
 variables may be bound by the enclosing class instance decl.
-Hence the use of tcImplicitQTKBndrs in tcFamTyPats.
+Hence the use of tcImplicitQTKBndrs in tcFamTyPatsAndGen.
 
 Note [Kind variable ordering for associated types]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
